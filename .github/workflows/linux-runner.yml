@@ -1,0 +1,54 @@
+name: GitHub Linux Runner Environment
+
+# এটি কখন রান হবে তা নির্ধারণ করে
+on:
+  push:
+    branches: [ "main" ] # মেইন ব্রাঞ্চে কোড পুশ করলে চলবে
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:      # গিটহাব ড্যাশবোর্ড থেকে ম্যানুয়ালি রান করার জন্য
+
+jobs:
+  build-and-run:
+    runs-on: ubuntu-latest # লেটেস্ট উবুন্টু লিনাক্স এনভায়রনমেন্ট
+
+    steps:
+      # ১. রিপোজিটরি থেকে কোড চেকআউট করা
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # ২. ফাইল পারমিশন সেটআপ করা (Executability)
+      - name: Grant Execute Permission
+        run: |
+          chmod +x scripts/setup.sh
+          chmod +x scripts/backup.sh
+
+      # ৩. লিনাক্স এনভায়রনমেন্ট সেটআপ (সফটওয়্যার ইনস্টলেশন)
+      - name: Run Setup Script
+        run: ./scripts/setup.sh
+
+      # ৪. মূল কাজ বা প্রজেক্ট রান করা
+      - name: Execute Main Tasks
+        run: |
+          echo "Starting Linux tasks..."
+          # এখানে আপনি আপনার মূল কমান্ডগুলো দিতে পারেন
+          ls -R data/ # ডাটা ফোল্ডারের ফাইল লিস্ট দেখা
+
+      # ৫. ক্লাউড ব্যাকআপ প্রসেস (Rclone ব্যবহার করে)
+      # এখানে সিক্রেটস ব্যবহার করা হয়েছে যাতে আপনার পাসওয়ার্ড নিরাপদ থাকে
+      - name: Cloud Backup via Rclone
+        env:
+          RCLONE_CONF: ${{ secrets.RCLONE_CONFIG }}
+        run: |
+          if [ -n "$RCLONE_CONF" ]; then
+            mkdir -p ~/.config/rclone
+            echo "$RCLONE_CONF" > ~/.config/rclone/rclone.conf
+            ./scripts/backup.sh
+          else
+            echo "Rclone config not found. Skipping backup."
+          fi
+
+      # ৬. কাজ শেষে স্ট্যাটাস জানানো
+      - name: Project Status
+        if: always()
+        run: echo "Linux Environment Job Completed!"
