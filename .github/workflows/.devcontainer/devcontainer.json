@@ -1,47 +1,26 @@
 {
     "name": "Full Linux Desktop Environment",
     "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
-
     "features": {
-        // ১. সাধারণ লিনাক্স ইউটিলিটি এবং Zsh শেল
         "ghcr.io/devcontainers/features/common-utils:1": {
             "installZsh": true,
             "configureZshAsDefaultShell": true
         },
-        // ২. ডেক্সটপ ইন্টারফেস (পিসির মতো মাউস দিয়ে ব্যবহারের জন্য)
         "ghcr.io/devcontainers/features/desktop-lite:1": {
             "version": "latest",
             "password": "password123" 
         },
-        // ৩. গিট এবং পাইথন (আগে যা ছিল)
         "ghcr.io/devcontainers/features/git:1": "latest",
         "ghcr.io/devcontainers/features/python:1": "latest"
     },
-
     "customizations": {
         "vscode": {
             "settings": {
-                // টার্মিনাল এবং এডিটর সেটিংস
-                "terminal.integrated.defaultProfile.linux": "zsh",
-                "editor.formatOnSave": true,
-                "editor.fontSize": 14
-            },
-            "extensions": [
-                // প্রয়োজনীয় এক্সটেনশনসমূহ
-                "ms-python.python",
-                "ms-azuretools.vscode-docker",
-                "yzhang.markdown-all-in-one",
-                "vscjava.vscode-java-pack"
-            ]
+                "terminal.integrated.defaultProfile.linux": "zsh"
+            }
         }
     },
-
-    // কন্টেইনার তৈরি হওয়ার পর আপনার setup.sh ফাইলটি রান করবে
     "postCreateCommand": "chmod +x scripts/setup.sh && ./scripts/setup.sh",
-
-    // ডিফল্ট ইউজার হিসেবে 'vscode' ব্যবহার হবে
     "remoteUser": "vscode",
-
-    // পিসি ইন্টারফেস বা ডেস্কটপ দেখার জন্য পোর্ট ৬০৮০ ফরওয়ার্ড করা
-    "forwardPorts": [6080]
+    "forwardPorts": [6080, 5901] 
 }
